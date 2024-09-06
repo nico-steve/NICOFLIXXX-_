@@ -1,3 +1,4 @@
+
 <html><head><base href="https://nicoflix.com/" />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -30,22 +31,10 @@
             justify-content: space-between;
             align-items: center;
         }
-        @keyframes glow {
-            0%, 100% {
-                text-shadow: none;
-            }
-            50% {
-                text-shadow: 0 0 10px rgba(229, 9, 20, 0.7);
-            }
-        }
         .logo {
             color: #e50914;
             font-size: 2em;
             font-weight: bold;
-            transition: text-shadow 0.5s ease-in-out;
-        }
-        .logo.glowing {
-            animation: glow 2s infinite;
         }
         .nav {
             display: flex;
@@ -97,21 +86,24 @@
             display: flex;
             flex-wrap: nowrap;
             gap: 10px;
-            overflow-x: hidden;  /* Change from auto to hidden */
+            overflow-x: hidden;
             padding-bottom: 20px;
             justify-content: flex-start;
             scroll-behavior: smooth;
             -webkit-overflow-scrolling: touch;
+            align-items: center; /* Add this line to vertically center thumbnails */
+            height: 320px; /* Increase the height to accommodate taller thumbnails */
         }
         .thumbnail {
-            flex: 0 0 calc(100% / 7 - 10px);
-            width: calc(100% / 7 - 10px);
-            max-width: none;
+            flex: 0 0 200px; /* Fixed width */
+            width: 200px;
+            height: 300px; /* Fixed height */
             cursor: pointer;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             position: relative;
             border-radius: 5px;
             overflow: hidden;
+            margin-right: 10px; /* Add some space between thumbnails */
         }
         .thumbnail:hover {
             transform: scale(1.05);
@@ -119,7 +111,7 @@
         }
         .thumbnail img {
             width: 100%;
-            height: 300px;
+            height: 100%;
             object-fit: cover;
             transition: filter 0.3s ease;
         }
@@ -137,6 +129,14 @@
             text-align: center;
             font-weight: bold;
             transition: background-color 0.3s ease;
+            height: 40px; /* Fixed height */
+            line-height: 20px; /* Center text vertically */
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .thumbnail-title-hover {
             background-color: rgba(229, 9, 20, 0.7);
@@ -255,27 +255,6 @@
         .modal-content button:hover {
             background-color: #f40612;
         }
-        .delete-button {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            background-color: rgba(229, 9, 20, 0.7);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        .thumbnail:hover .delete-button {
-            opacity: 1;
-        }
         #playerPage, #sectionPage {
             display: none;
             padding: 20px;
@@ -368,20 +347,52 @@
             #sectionThumbnailContainer .thumbnail {
                 width: calc(25% - 20px);
             }
+            .thumbnail-container {
+                height: 290px;
+            }
+            .thumbnail {
+                flex: 0 0 180px;
+                width: 180px;
+                height: 270px;
+            }
         }
         @media (max-width: 992px) {
             #sectionThumbnailContainer .thumbnail {
                 width: calc(33.33% - 20px);
+            }
+            .thumbnail-container {
+                height: 260px;
+            }
+            .thumbnail {
+                flex: 0 0 160px;
+                width: 160px;
+                height: 240px;
             }
         }
         @media (max-width: 768px) {
             #sectionThumbnailContainer .thumbnail {
                 width: calc(50% - 20px);
             }
+            .thumbnail-container {
+                height: 230px;
+            }
+            .thumbnail {
+                flex: 0 0 140px;
+                width: 140px;
+                height: 210px;
+            }
         }
         @media (max-width: 480px) {
             #sectionThumbnailContainer .thumbnail {
                 width: calc(100% - 20px);
+            }
+            .thumbnail-container {
+                height: 200px;
+            }
+            .thumbnail {
+                flex: 0 0 120px;
+                width: 120px;
+                height: 180px;
             }
         }
         #episodesRow {
@@ -517,6 +528,35 @@
         #seasonSelector option:hover {
             background-color: #e50914;
         }
+        /* Update media queries for responsiveness */
+        @media (max-width: 1200px) {
+            .thumbnail {
+                flex: 0 0 180px;
+                width: 180px;
+                height: 270px;
+            }
+        }
+        @media (max-width: 992px) {
+            .thumbnail {
+                flex: 0 0 160px;
+                width: 160px;
+                height: 240px;
+            }
+        }
+        @media (max-width: 768px) {
+            .thumbnail {
+                flex: 0 0 140px;
+                width: 140px;
+                height: 210px;
+            }
+        }
+        @media (max-width: 480px) {
+            .thumbnail {
+                flex: 0 0 120px;
+                width: 120px;
+                height: 180px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -545,35 +585,46 @@
         <div id="addModal" class="modal">
             <div class="modal-content">
                 <span class="close">&times;</span>
-                <h2>Agregar Nuevo Contenido</h2>
-                <select id="contentType">
-                    <option value="movie">Película</option>
-                    <option value="series">Serie</option>
+                <h2>Agregar o Eliminar Contenido</h2>
+                <select id="actionType">
+                    <option value="add">Agregar Nuevo Contenido</option>
+                    <option value="delete">Eliminar Contenido</option>
                 </select>
-                <input type="text" id="newTitle" placeholder="Título">
-                <input type="number" id="newYear" placeholder="Año de creación">
-                <input type="text" id="newCoverUrl" placeholder="URL de la portada">
-                <textarea id="newDescription" placeholder="Descripción"></textarea>
-                <div id="movieFields">
-                    <textarea id="newEmbedCode" placeholder="Código de inserción (embed)"></textarea>
-                    <input type="text" id="newGoogleDriveLink" placeholder="Enlace de Google Drive (opcional)">
+                <div id="addContentFields">
+                    <select id="contentType">
+                        <option value="movie">Película</option>
+                        <option value="series">Serie</option>
+                    </select>
+                    <input type="text" id="newTitle" placeholder="Título">
+                    <input type="number" id="newYear" placeholder="Año de creación">
+                    <input type="text" id="newCoverUrl" placeholder="URL de la portada">
+                    <textarea id="newDescription" placeholder="Descripción"></textarea>
+                    <div id="movieFields">
+                        <textarea id="newEmbedCode" placeholder="Código de inserción (embed)"></textarea>
+                        <input type="text" id="newGoogleDriveLink" placeholder="Enlace de Google Drive (opcional)">
+                    </div>
+                    <div id="seriesFields" style="display:none;">
+                        <input type="number" id="newSeasonNumber" placeholder="Número de temporada">
+                        <div id="episodesContainer"></div>
+                        <button type="button" id="addEpisodeButton">Agregar Episodio</button>
+                    </div>
+                    <select id="newSection">
+                        <option value="">Seleccionar sección</option>
+                        <option value="accion">Acción</option>
+                        <option value="animacion">Animación</option>
+                        <option value="comedia">Comedia</option>
+                        <option value="romantico">Romántico</option>
+                        <option value="suspenso">Suspenso</option>
+                        <option value="ciencia ficcion">Ciencia Ficción</option>
+                        <option value="series">Series</option>
+                    </select>
+                    <button id="addContentButton">Agregar Contenido</button>
                 </div>
-                <div id="seriesFields" style="display:none;">
-                    <input type="number" id="newSeasonNumber" placeholder="Número de temporada">
-                    <div id="episodesContainer"></div>
-                    <button type="button" id="addEpisodeButton">Agregar Episodio</button>
+                <div id="deleteContentFields" style="display:none;">
+                    <input type="text" id="deleteTitle" placeholder="Título exacto">
+                    <input type="number" id="deleteYear" placeholder="Año exacto">
+                    <button id="deleteContentButton">Eliminar Contenido</button>
                 </div>
-                <select id="newSection">
-                    <option value="">Seleccionar sección</option>
-                    <option value="accion">Acción</option>
-                    <option value="animacion">Animación</option>
-                    <option value="comedia">Comedia</option>
-                    <option value="romantico">Romántico</option>
-                    <option value="suspenso">Suspenso</option>
-                    <option value="ciencia ficcion">Ciencia Ficción</option>
-                    <option value="series">Series</option>
-                </select>
-                <button id="addContentButton">Agregar Contenido</button>
             </div>
         </div>
 
@@ -631,6 +682,10 @@
         let currentSection = '';
         let currentItem = null;
 
+        const actionType = document.getElementById('actionType');
+        const addContentFields = document.getElementById('addContentFields');
+        const deleteContentFields = document.getElementById('deleteContentFields');
+        const deleteContentButton = document.getElementById('deleteContentButton');
         const contentType = document.getElementById('contentType');
         const movieFields = document.getElementById('movieFields');
         const seriesFields = document.getElementById('seriesFields');
@@ -657,17 +712,15 @@
         const searchInput = document.getElementById('searchInput');
         const searchButton = document.getElementById('searchButton');
 
-        function toggleGlow() {
-            const logo = document.querySelector('.logo');
-            logo.classList.toggle('glowing');
-        }
-
-        setInterval(toggleGlow, 2000);
-
         let fuse;
 
         addButton.onclick = function() {
             passwordModal.style.display = "block";
+            passwordInput.value = ''; // Clear password input
+            actionType.value = 'add'; // Reset to 'add' action
+            addContentFields.style.display = 'block';
+            deleteContentFields.style.display = 'none';
+            clearInputFields(); // Clear all input fields
         }
 
         submitPasswordButton.onclick = function() {
@@ -699,6 +752,47 @@
             }
         }
 
+        actionType.addEventListener('change', function() {
+            if (this.value === 'add') {
+                addContentFields.style.display = 'block';
+                deleteContentFields.style.display = 'none';
+            } else {
+                addContentFields.style.display = 'none';
+                deleteContentFields.style.display = 'block';
+            }
+        });
+
+        deleteContentButton.addEventListener('click', function() {
+            const titleToDelete = document.getElementById('deleteTitle').value.trim();
+            const yearToDelete = document.getElementById('deleteYear').value.trim();
+
+            if (titleToDelete && yearToDelete) {
+                const indexToDelete = content.findIndex(item => 
+                    item.title.toLowerCase() === titleToDelete.toLowerCase() && 
+                    item.year.toString() === yearToDelete
+                );
+
+                if (indexToDelete !== -1) {
+                    deleteContent(indexToDelete);
+                    alert('Contenido eliminado con éxito.');
+                    addModal.style.display = "none";
+                    document.getElementById('deleteTitle').value = '';
+                    document.getElementById('deleteYear').value = '';
+                } else {
+                    alert('No se encontró contenido con el título y año exactos proporcionados.');
+                }
+            } else {
+                alert('Por favor, ingrese tanto el título como el año exactos.');
+            }
+        });
+
+        function deleteContent(index) {
+            content.splice(index, 1);
+            saveContent();
+            loadContent();
+            initializeFuse();
+        }
+
         contentType.addEventListener('change', function() {
             if (this.value === 'movie') {
                 movieFields.style.display = 'block';
@@ -727,59 +821,61 @@
             const description = document.getElementById('newDescription').value;
             const section = document.getElementById('newSection').value;
 
-            if (contentType.value === 'movie') {
-                const embedCode = document.getElementById('newEmbedCode').value;
-                const googleDriveLink = document.getElementById('newGoogleDriveLink').value;
+            if (actionType.value === 'add') {
+                if (contentType.value === 'movie') {
+                    const embedCode = document.getElementById('newEmbedCode').value;
+                    const googleDriveLink = document.getElementById('newGoogleDriveLink').value;
 
-                if (title && coverUrl && description && section && (embedCode || googleDriveLink)) {
-                    const newContent = {
-                        type: 'movie',
-                        title: title,
-                        year: year,
-                        cover: coverUrl,
-                        description: description,
-                        embed: embedCode,
-                        googleDrive: googleDriveLink,
-                        section: section,
-                        dateAdded: new Date().toISOString()
-                    };
-                    content.push(newContent);
-                    saveContent();
-                    addModal.style.display = "none";
-                    clearInputFields();
-                    loadContent();
-                    initializeFuse();
-                } else {
-                    alert('Por favor, complete todos los campos obligatorios.');
-                }
-            } else if (contentType.value === 'series') {
-                const seasonNumber = document.getElementById('newSeasonNumber').value;
-                const episodes = Array.from(episodesContainer.children).map(episodeDiv => ({
-                    number: episodeDiv.querySelector('.episodeNumber').value,
-                    title: episodeDiv.querySelector('.episodeTitle').value,
-                    embed: episodeDiv.querySelector('.episodeEmbed').value
-                }));
+                    if (title && coverUrl && description && section && (embedCode || googleDriveLink)) {
+                        const newContent = {
+                            type: 'movie',
+                            title: title,
+                            year: year,
+                            cover: coverUrl,
+                            description: description,
+                            embed: embedCode,
+                            googleDrive: googleDriveLink,
+                            section: section,
+                            dateAdded: new Date().toISOString()
+                        };
+                        content.push(newContent);
+                        saveContent();
+                        addModal.style.display = "none";
+                        clearInputFields();
+                        loadContent();
+                        initializeFuse();
+                    } else {
+                        alert('Por favor, complete todos los campos obligatorios.');
+                    }
+                } else if (contentType.value === 'series') {
+                    const seasonNumber = document.getElementById('newSeasonNumber').value;
+                    const episodes = Array.from(episodesContainer.children).map(episodeDiv => ({
+                        number: episodeDiv.querySelector('.episodeNumber').value,
+                        title: episodeDiv.querySelector('.episodeTitle').value,
+                        embed: episodeDiv.querySelector('.episodeEmbed').value
+                    }));
 
-                if (title && coverUrl && description && section && seasonNumber && episodes.length > 0) {
-                    const newContent = {
-                        type: 'series',
-                        title: title,
-                        year: year,
-                        cover: coverUrl,
-                        description: description,
-                        season: seasonNumber,
-                        episodes: episodes,
-                        section: section,
-                        dateAdded: new Date().toISOString()
-                    };
-                    content.push(newContent);
-                    saveContent();
-                    addModal.style.display = "none";
-                    clearInputFields();
-                    loadContent();
-                    initializeFuse();
-                } else {
-                    alert('Por favor, complete todos los campos obligatorios y agregue al menos un episodio.');
+                    if (title && coverUrl && description && section && seasonNumber && episodes.length > 0) {
+                        const newContent = {
+                            type: 'series',
+                            title: title,
+                            year: year,
+                            cover: coverUrl,
+                            description: description,
+                            season: seasonNumber,
+                            episodes: episodes,
+                            section: section,
+                            dateAdded: new Date().toISOString()
+                        };
+                        content.push(newContent);
+                        saveContent();
+                        addModal.style.display = "none";
+                        clearInputFields();
+                        loadContent();
+                        initializeFuse();
+                    } else {
+                        alert('Por favor, complete todos los campos obligatorios y agregue al menos un episodio.');
+                    }
                 }
             }
         }
@@ -787,6 +883,8 @@
         function clearInputFields() {
             document.querySelectorAll('.modal-content input, .modal-content textarea, .modal-content select').forEach(el => el.value = '');
             episodesContainer.innerHTML = '';
+            document.getElementById('deleteTitle').value = '';
+            document.getElementById('deleteYear').value = '';
         }
 
         function saveContent() {
@@ -857,7 +955,6 @@
                 <img src="${item.cover}" alt="${item.title}">
                 ${seasonInfo}
                 <div class="thumbnail-title">${item.title}</div>
-                <button class="delete-button" data-index="${index}">X</button>
             `;
             
             const thumbnailTitle = thumbnail.querySelector('.thumbnail-title');
@@ -871,27 +968,7 @@
             });
             
             thumbnail.addEventListener('click', function(e) {
-                if (!e.target.classList.contains('delete-button')) {
-                    playContent(item, seriesGroup);
-                }
-            });
-
-            const deleteButton = thumbnail.querySelector('.delete-button');
-            deleteButton.addEventListener('click', function(e) {
-                e.stopPropagation();
-                passwordModal.style.display = "block";
-                passwordInput.onkeyup = function(event) {
-                    if (event.key === "Enter") {
-                        if (passwordInput.value === password) {
-                            const indexToDelete = parseInt(deleteButton.getAttribute('data-index'));
-                            deleteContent(indexToDelete);
-                            passwordModal.style.display = "none";
-                            passwordInput.value = ''; // Clear password input
-                        } else {
-                            alert('Contraseña incorrecta');
-                        }
-                    }
-                };
+                playContent(item, seriesGroup);
             });
 
             container.appendChild(thumbnail);
