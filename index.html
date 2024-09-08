@@ -272,6 +272,10 @@
             position: relative; 
             overflow: hidden; 
         }
+        .back-button.main-menu {
+            font-size: 12px; /* Even smaller font size for main menu button */
+            padding: 6px 12px; /* Further reduced padding for main menu button */
+        }
         .back-button:hover {
             background-color: #f40612;
             transform: scale(1.05);
@@ -539,7 +543,7 @@
         .section-search-container {
             display: flex;
             align-items: center;
-            width: 200px; /* Reduced from 300px */
+            width: 300px;
             position: absolute;
             top: 20px;
             right: 20px;
@@ -630,31 +634,12 @@
                 width: 140px;
                 height: 210px;
             }
-            .section-search-container {
-                width: 150px; /* Even shorter on smaller screens */
-                top: 10px;
-                right: 10px;
-            }
         }
         @media (max-width: 480px) {
             .thumbnail {
                 flex: 0 0 120px;
                 width: 120px;
                 height: 180px;
-            }
-            .logo {
-                font-size: 1.5em;
-            }
-            .nav a {
-                font-size: 14px;
-            }
-            #episodesRow {
-                justify-content: center;
-            }
-            .episode-button {
-                width: 35px;
-                height: 35px;
-                font-size: 12px;
             }
         }
     </style>
