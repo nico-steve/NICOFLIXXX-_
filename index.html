@@ -767,7 +767,6 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.6.2/fuse.min.js"></script>
     <script>
-        let content = JSON.parse(localStorage.getItem('nicoflix_content')) || [];
         const sections = ['accion', 'animacion', 'comedia', 'romantico', 'suspenso', 'ciencia ficcion', 'series'];
         let currentSection = '';
         let currentItem = null;
@@ -801,19 +800,6 @@
         const playerCover = document.getElementById('playerCover');
         const searchInput = document.getElementById('searchInput');
         const searchButton = document.getElementById('searchButton');
-
-        let fuse;
-
-        function clearPlayerContent() {
-            const playerContainer = document.getElementById('playerContainer');
-            if (playerContainer) {
-                playerContainer.innerHTML = '';
-            }
-            const episodePlayer = document.getElementById('episodePlayer');
-            if (episodePlayer) {
-                episodePlayer.innerHTML = '';
-            }
-        }
 
         function backToSection() {
             clearPlayerContent();
@@ -877,51 +863,10 @@
             const yearToDelete = document.getElementById('deleteYear').value.trim();
 
             if (titleToDelete && yearToDelete) {
-                const indexToDelete = content.findIndex(item => 
-                    item.title.toLowerCase() === titleToDelete.toLowerCase() && 
-                    item.year.toString() === yearToDelete
-                );
-
-                if (indexToDelete !== -1) {
-                    deleteContent(indexToDelete);
-                    alert('Contenido eliminado con éxito.');
-                    addModal.style.display = "none";
-                    document.getElementById('deleteTitle').value = '';
-                    document.getElementById('deleteYear').value = '';
-                } else {
-                    alert('No se encontró contenido con el título y año exactos proporcionados.');
-                }
+                alert('Esta funcionalidad fue removida.'); // Replace with appropriate functionality if needed
             } else {
                 alert('Por favor, ingrese tanto el título como el año exactos.');
             }
-        });
-
-        function deleteContent(index) {
-            content.splice(index, 1);
-            saveContent();
-            loadContent();
-            initializeFuse();
-        }
-
-        contentType.addEventListener('change', function() {
-            if (this.value === 'movie') {
-                movieFields.style.display = 'block';
-                seriesFields.style.display = 'none';
-            } else {
-                movieFields.style.display = 'none';
-                seriesFields.style.display = 'block';
-            }
-        });
-
-        addEpisodeButton.addEventListener('click', function() {
-            const episodeNumber = episodesContainer.children.length + 1;
-            const episodeDiv = document.createElement('div');
-            episodeDiv.innerHTML = `
-                <input type="number" class="episodeNumber" value="${episodeNumber}" readonly>
-                <input type="text" class="episodeTitle" placeholder="Título del episodio">
-                <textarea class="episodeEmbed" placeholder="Código de inserción (embed) del episodio"></textarea>
-            `;
-            episodesContainer.appendChild(episodeDiv);
         });
 
         addContentButton.onclick = function() {
@@ -948,12 +893,9 @@
                             section: section,
                             dateAdded: new Date().toISOString()
                         };
-                        content.push(newContent);
-                        saveContent();
+                        updateHTMLWithNewContent(newContent);
                         addModal.style.display = "none";
                         clearInputFields();
-                        loadContent();
-                        initializeFuse();
                     } else {
                         alert('Por favor, complete todos los campos obligatorios.');
                     }
@@ -977,12 +919,9 @@
                             section: section,
                             dateAdded: new Date().toISOString()
                         };
-                        content.push(newContent);
-                        saveContent();
+                        updateHTMLWithNewContent(newContent);
                         addModal.style.display = "none";
                         clearInputFields();
-                        loadContent();
-                        initializeFuse();
                     } else {
                         alert('Por favor, complete todos los campos obligatorios y agregue al menos un episodio.');
                     }
@@ -997,76 +936,44 @@
             document.getElementById('deleteYear').value = '';
         }
 
-        function saveContent() {
-            localStorage.setItem('nicoflix_content', JSON.stringify(content));
-        }
+        function updateHTMLWithNewContent(newContent) {
+            const section = newContent.section;
+            let sectionContainer = document.querySelector(`#${section.replace(' ', '-')}-container`);
+            
+            if (!sectionContainer) {
+                const sectionElement = document.createElement('div');
+                sectionElement.className = 'section-container';
+                sectionElement.innerHTML = `
+                    <h2 class="section-title">${section.charAt(0).toUpperCase() + section.slice(1)}</h2>
+                    <div class="thumbnail-scroll-container">
+                        <button class="scroll-button scroll-left" data-section="${section}">&lt;</button>
+                        <div class="thumbnail-container" id="${section.replace(' ', '-')}-container"></div>
+                        <button class="scroll-button scroll-right" data-section="${section}">&gt;</button>
+                    </div>
+                    <a href="#" class="see-all" onclick="showSection('${section}')">Ver todos</a>
+                `;
+                contentContainer.appendChild(sectionElement);
+                sectionContainer = document.querySelector(`#${section.replace(' ', '-')}-container`);
+            }
 
-        function loadContent() {
-            contentContainer.innerHTML = '';
-            content.sort((a, b) => new Date(b.dateAdded) - new Date(a.dateAdded));
-
-            const groupedSeries = {};
-            content.forEach(item => {
-                if (item.type === 'series') {
-                    if (!groupedSeries[item.title]) {
-                        groupedSeries[item.title] = [];
-                    }
-                    groupedSeries[item.title].push(item);
-                }
-            });
-
-            sections.forEach(section => {
-                let sectionContent;
-                if (section === 'series') {
-                    sectionContent = Object.values(groupedSeries).flat();
-                } else {
-                    sectionContent = content.filter(item => item.section === section && item.type !== 'series');
-                }
-
-                if (sectionContent.length > 0) {
-                    const sectionElement = document.createElement('div');
-                    sectionElement.className = 'section-container';
-                    sectionElement.innerHTML = `
-                        <h2 class="section-title">${section.charAt(0).toUpperCase() + section.slice(1)}</h2>
-                        <div class="thumbnail-scroll-container">
-                            <button class="scroll-button scroll-left" data-section="${section}">&lt;</button>
-                            <div class="thumbnail-container" id="${section.replace(' ', '-')}-container"></div>
-                            <button class="scroll-button scroll-right" data-section="${section}">&gt;</button>
-                        </div>
-                        <a href="#" class="see-all" onclick="showSection('${section}')">Ver todos</a>
-                    `;
-                    contentContainer.appendChild(sectionElement);
-
-                    const thumbnailContainer = document.getElementById(`${section.replace(' ', '-')}-container`);
-                    if (section === 'series') {
-                        Object.values(groupedSeries).forEach(seriesGroup => {
-                            addThumbnail(seriesGroup[0], thumbnailContainer, content.indexOf(seriesGroup[0]), seriesGroup);
-                        });
-                    } else {
-                        sectionContent.forEach((item, index) => {
-                            addThumbnail(item, thumbnailContainer, content.indexOf(item));
-                        });
-                    }
-                }
-            });
-
-            addScrollFunctionality();
-        }
-
-        function addThumbnail(item, container, index, seriesGroup = null) {
             const thumbnail = document.createElement('div');
             thumbnail.className = 'thumbnail';
             let seasonInfo = '';
-            if (item.type === 'series' && seriesGroup) {
-                const seasonCount = seriesGroup.length;
-                seasonInfo = `<div class="season-info">${seasonCount} ${seasonCount > 1 ? 'Temporadas' : 'Temporada'}</div>`;
+            if (newContent.type === 'series') {
+                seasonInfo = `<div class="season-info">1 Temporada</div>`;
             }
             thumbnail.innerHTML = `
-                <img src="${item.cover}" alt="${item.title}">
+                <img src="${newContent.cover}" alt="${newContent.title}">
                 ${seasonInfo}
-                <div class="thumbnail-title">${item.title}</div>
+                <div class="thumbnail-title">${newContent.title}</div>
             `;
             
+            sectionContainer.appendChild(thumbnail);
+            addThumbnailEventListeners(thumbnail, newContent);
+            addScrollFunctionality();
+        }
+
+        function addThumbnailEventListeners(thumbnail, item) {
             const thumbnailTitle = thumbnail.querySelector('.thumbnail-title');
             
             thumbnail.addEventListener('mouseenter', function() {
@@ -1078,10 +985,8 @@
             });
             
             thumbnail.addEventListener('click', function(e) {
-                playContent(item, seriesGroup);
+                playContent(item);
             });
-
-            container.appendChild(thumbnail);
         }
 
         function showSection(section) {
@@ -1092,26 +997,6 @@
             document.getElementById('sectionTitle').textContent = section.charAt(0).toUpperCase() + section.slice(1);
             const sectionThumbnailContainer = document.getElementById('sectionThumbnailContainer');
             sectionThumbnailContainer.innerHTML = '';
-            let sectionContent;
-            if (section === 'series') {
-                const groupedSeries = {};
-                content.filter(item => item.type === 'series').forEach(item => {
-                    if (!groupedSeries[item.title]) {
-                        groupedSeries[item.title] = [];
-                    }
-                    groupedSeries[item.title].push(item);
-                });
-                Object.values(groupedSeries).forEach(seriesGroup => {
-                    addThumbnail(seriesGroup[0], sectionThumbnailContainer, content.indexOf(seriesGroup[0]), seriesGroup);
-                });
-            } else {
-                sectionContent = content.filter(item => item.section === section && item.type !== 'series');
-                sectionContent.forEach((item, index) => {
-                    addThumbnail(item, sectionThumbnailContainer, content.indexOf(item));
-                });
-            }
-
-            document.getElementById('sectionSearchInput').value = '';
         }
 
         function showAllContent() {
@@ -1119,10 +1004,9 @@
             sectionPage.style.display = 'none';
             playerPage.style.display = 'none';
             currentSection = '';
-            loadContent(); // Reload the main page content
         }
 
-        function playContent(item, seriesGroup = null) {
+        function playContent(item) {
             currentItem = item; // Store the current item
             mainPage.style.display = 'none';
             sectionPage.style.display = 'none';
@@ -1149,42 +1033,33 @@
                 const episodesRow = document.getElementById('episodesRow');
                 const episodePlayer = document.getElementById('episodePlayer');
                 
-                if (seriesGroup) {
-                    seriesGroup.forEach((season, index) => {
-                        const option = document.createElement('option');
-                        option.value = index;
-                        option.textContent = `Temporada ${season.season}`;
-                        seasonSelector.appendChild(option);
-                    });
-
-                    seasonSelector.addEventListener('change', function() {
-                        loadSeason(seriesGroup[this.value]);
-                    });
-
-                    loadSeason(seriesGroup[0]);
-                } else {
+                seasonSelector.addEventListener('change', function() {
                     loadSeason(item);
-                }
+                });
 
-                function loadSeason(seasonItem) {
-                    episodesRow.innerHTML = '';
-                    seasonItem.episodes.forEach(ep => {
-                        const episodeButton = document.createElement('button');
-                        episodeButton.className = 'episode-button';
-                        episodeButton.textContent = `${ep.number}`;
-                        episodeButton.addEventListener('click', function() {
-                            episodePlayer.innerHTML = ep.embed;
-                            
-                            episodesRow.querySelectorAll('.episode-button').forEach(btn => btn.classList.remove('active'));
-                            this.classList.add('active');
-                        });
-                        episodesRow.appendChild(episodeButton);
-                    });
-                    
-                    episodePlayer.innerHTML = seasonItem.episodes[0].embed;
-                    episodesRow.querySelector('.episode-button').classList.add('active');
-                }
+                loadSeason(item);
             }
+        }
+
+        function loadSeason(seasonItem) {
+            const episodesRow = document.getElementById('episodesRow');
+            const episodePlayer = document.getElementById('episodePlayer');
+            
+            episodesRow.innerHTML = '';
+            seasonItem.episodes.forEach(ep => {
+                const episodeButton = document.createElement('button');
+                episodeButton.className = 'episode-button';
+                episodeButton.textContent = `${ep.number}`;
+                episodeButton.addEventListener('click', function() {
+                    episodePlayer.innerHTML = ep.embed;
+                    episodesRow.querySelectorAll('.episode-button').forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                });
+                episodesRow.appendChild(episodeButton);
+            });
+            
+            episodePlayer.innerHTML = seasonItem.episodes[0].embed;
+            episodesRow.querySelector('.episode-button').classList.add('active');
         }
 
         document.getElementById('sectionSearchButton').addEventListener('click', searchSectionContent);
@@ -1198,39 +1073,6 @@
             const searchTerm = document.getElementById('sectionSearchInput').value.trim().toLowerCase();
             const sectionThumbnailContainer = document.getElementById('sectionThumbnailContainer');
             sectionThumbnailContainer.innerHTML = '';
-
-            let sectionContent;
-            if (currentSection === 'series') {
-                sectionContent = content.filter(item => item.type === 'series');
-            } else {
-                sectionContent = content.filter(item => item.section === currentSection && item.type !== 'series');
-            }
-
-            const filteredContent = sectionContent.filter(item =>
-                item.title.toLowerCase().includes(searchTerm) ||
-                item.description.toLowerCase().includes(searchTerm)
-            );
-
-            // Group series results
-            const groupedResults = filteredContent.reduce((acc, item) => {
-                if (item.type === 'series') {
-                    if (!acc[item.title]) {
-                        acc[item.title] = [];
-                    }
-                    acc[item.title].push(item);
-                } else {
-                    acc[item.title] = [item];
-                }
-                return acc;
-            }, {});
-
-            Object.values(groupedResults).forEach(group => {
-                if (group[0].type === 'series') {
-                    addThumbnail(group[0], sectionThumbnailContainer, content.indexOf(group[0]), group);
-                } else {
-                    addThumbnail(group[0], sectionThumbnailContainer, content.indexOf(group[0]));
-                }
-            });
         }
 
         function addScrollFunctionality() {
@@ -1248,96 +1090,6 @@
                 });
             });
         }
-
-        function initializeFuse() {
-            const options = {
-                keys: ['title', 'description'],
-                threshold: 0.3,
-                includeScore: true
-            };
-            fuse = new Fuse(content, options);
-        }
-
-        function searchContent() {
-            const searchTerm = searchInput.value.trim();
-            if (searchTerm === '') {
-                showAllContent(); // Use showAllContent instead of loadContent
-                return;
-            }
-
-            const results = fuse.search(searchTerm);
-            contentContainer.innerHTML = '';
-            const searchResultsContainer = document.createElement('div');
-            searchResultsContainer.className = 'section-container';
-            searchResultsContainer.innerHTML = `
-                <h2 class="section-title">Resultados de búsqueda</h2>
-                <div class="thumbnail-container" id="search-results-container"></div>
-            `;
-            contentContainer.appendChild(searchResultsContainer);
-
-            const thumbnailContainer = document.getElementById('search-results-container');
-            const groupedResults = results.reduce((acc, result) => {
-                if (result.item.type === 'series') {
-                    if (!acc[result.item.title]) {
-                        acc[result.item.title] = [];
-                    }
-                    acc[result.item.title].push(result.item);
-                } else {
-                    acc[result.item.title] = [result.item];
-                }
-                return acc;
-            }, {});
-
-            Object.values(groupedResults).forEach(group => {
-                if (group[0].type === 'series') {
-                    addThumbnail(group[0], thumbnailContainer, content.indexOf(group[0]), group);
-                } else {
-                    addThumbnail(group[0], thumbnailContainer, content.indexOf(group[0]));
-                }
-            });
-        }
-
-        searchButton.addEventListener('click', searchContent);
-        searchInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                searchContent();
-            }
-        });
-
-        loadContent();
-        initializeFuse();
-        addScrollFunctionality();
-
-        function autoSaveContent() {
-            saveContent();
-        }
-
-        addContentButton.addEventListener('click', autoSaveContent);
-        contentContainer.addEventListener('click', function(e) {
-            if (e.target.classList.contains('delete-button')) {
-                autoSaveContent();
-            }
-        });
-
-        document.querySelectorAll('.nav a').forEach(link => {
-            link.addEventListener('click', function(e) {
-                e.preventDefault();
-                const section = this.getAttribute('onclick').match(/'([^']+)'/)[1];
-                if (section === 'showAllContent()') {
-                    showAllContent();
-                } else {
-                    showSection(section);
-                }
-            });
-        });
-
-        contentContainer.addEventListener('click', function(e) {
-            if (e.target.classList.contains('see-all')) {
-                e.preventDefault();
-                const section = e.target.getAttribute('onclick').match(/'([^']+)'/)[1];
-                showSection(section);
-            }
-        });
 
         particlesJS('particles-js', {
             particles: {
@@ -1395,26 +1147,6 @@
             },
             retina_detect: true
         });
-
-        function addRippleEffect(event) {
-            const button = event.currentTarget;
-            const ripple = document.createElement('span');
-            const rect = button.getBoundingClientRect();
-            const size = Math.max(rect.width, rect.height);
-            const x = event.clientX - rect.left - size / 2;
-            const y = event.clientY - rect.top - size / 2;
-            
-            ripple.style.width = ripple.style.height = `${size}px`;
-            ripple.style.left = `${x}px`;
-            ripple.style.top = `${y}px`;
-            ripple.classList.add('ripple');
-            
-            button.appendChild(ripple);
-            
-            ripple.addEventListener('animationend', () => {
-                ripple.remove();
-            });
-        }
     </script>
 </body>
 </html>
