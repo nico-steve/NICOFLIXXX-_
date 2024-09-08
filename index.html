@@ -263,15 +263,51 @@
             background-color: #e50914;
             color: white;
             border: none;
-            padding: 10px 20px;
-            margin: 20px 0;
+            padding: 8px 15px; /* Reduced padding */
+            margin: 10px 0; /* Reduced margin */
             cursor: pointer;
-            font-size: 16px;
+            font-size: 14px; /* Smaller font size */
             border-radius: 4px;
-            transition: background-color 0.3s;
+            transition: all 0.3s ease;
+            position: relative; 
+            overflow: hidden; 
         }
         .back-button:hover {
             background-color: #f40612;
+            transform: scale(1.05);
+        }
+        .back-button:active {
+            transform: scale(0.95);
+        }
+        .back-button::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+        .back-button:active::after {
+            animation: ripple 0.4s ease-out;
+        }
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 1;
+            }
+            20% {
+                transform: scale(25, 25);
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: scale(40, 40);
+            }
         }
         .footer {
             background-color: transparent; /* Remove background color */
@@ -688,13 +724,12 @@
     </div>
 
     <div id="sectionPage">
-        <button class="back-button" onclick="showAllContent()">Volver al Menú Principal</button>
+        <button class="back-button main-menu" onclick="showAllContent()">Volver al Menú Principal</button>
         <h2 id="sectionTitle"></h2>
         <div class="section-search-container">
             <input type="text" id="sectionSearchInput" placeholder="Buscar en esta sección...">
             <button id="sectionSearchButton">Buscar</button>
         </div>
-        <button id="backToSectionButton" class="back-button" style="display: none;">Atrás</button>
         <div id="sectionThumbnailContainer">
             <!-- Section thumbnails will be dynamically added here -->
         </div>
@@ -758,6 +793,26 @@
         const searchButton = document.getElementById('searchButton');
 
         let fuse;
+
+        function clearPlayerContent() {
+            const playerContainer = document.getElementById('playerContainer');
+            if (playerContainer) {
+                playerContainer.innerHTML = '';
+            }
+            const episodePlayer = document.getElementById('episodePlayer');
+            if (episodePlayer) {
+                episodePlayer.innerHTML = '';
+            }
+        }
+
+        function backToSection() {
+            clearPlayerContent();
+            if (currentSection) {
+                showSection(currentSection);
+            } else {
+                showAllContent();
+            }
+        }
 
         addButton.onclick = function() {
             passwordModal.style.display = "block";
@@ -1122,16 +1177,6 @@
             }
         }
 
-        function backToSection() {
-            if (currentSection) {
-                showSection(currentSection);
-            } else {
-                showAllContent();
-            }
-        }
-
-        document.getElementById('backToSectionButton').addEventListener('click', backToSection);
-
         document.getElementById('sectionSearchButton').addEventListener('click', searchSectionContent);
         document.getElementById('sectionSearchInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
@@ -1142,7 +1187,6 @@
         function searchSectionContent() {
             const searchTerm = document.getElementById('sectionSearchInput').value.trim().toLowerCase();
             const sectionThumbnailContainer = document.getElementById('sectionThumbnailContainer');
-            const backToSectionButton = document.getElementById('backToSectionButton');
             sectionThumbnailContainer.innerHTML = '';
 
             let sectionContent;
@@ -1177,8 +1221,6 @@
                     addThumbnail(group[0], sectionThumbnailContainer, content.indexOf(group[0]));
                 }
             });
-
-            backToSectionButton.style.display = searchTerm ? 'inline-block' : 'none';
         }
 
         function addScrollFunctionality() {
@@ -1343,6 +1385,26 @@
             },
             retina_detect: true
         });
+
+        function addRippleEffect(event) {
+            const button = event.currentTarget;
+            const ripple = document.createElement('span');
+            const rect = button.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            const x = event.clientX - rect.left - size / 2;
+            const y = event.clientY - rect.top - size / 2;
+            
+            ripple.style.width = ripple.style.height = `${size}px`;
+            ripple.style.left = `${x}px`;
+            ripple.style.top = `${y}px`;
+            ripple.classList.add('ripple');
+            
+            button.appendChild(ripple);
+            
+            ripple.addEventListener('animationend', () => {
+                ripple.remove();
+            });
+        }
     </script>
 </body>
 </html>
