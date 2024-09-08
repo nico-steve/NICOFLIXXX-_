@@ -275,6 +275,8 @@
         .back-button.main-menu {
             font-size: 12px; /* Even smaller font size for main menu button */
             padding: 6px 12px; /* Further reduced padding for main menu button */
+            margin-top: 10px;
+            margin-left: 20px;
         }
         .back-button:hover {
             background-color: #f40612;
@@ -547,6 +549,7 @@
             position: absolute;
             top: 20px;
             right: 20px;
+            margin-bottom: 10px;
         }
         #sectionSearchInput {
             flex-grow: 1;
@@ -642,6 +645,9 @@
                 height: 180px;
             }
         }
+        #sectionTitle {
+            margin-top: 60px;
+        }
     </style>
 </head>
 <body>
@@ -728,12 +734,12 @@
     </div>
 
     <div id="sectionPage">
-        <button class="back-button main-menu" onclick="showAllContent()">Volver al Menú Principal</button>
         <h2 id="sectionTitle"></h2>
         <div class="section-search-container">
             <input type="text" id="sectionSearchInput" placeholder="Buscar en esta sección...">
             <button id="sectionSearchButton">Buscar</button>
         </div>
+        <button class="back-button main-menu" onclick="showAllContent()">Volver al Menú Principal</button>
         <div id="sectionThumbnailContainer">
             <!-- Section thumbnails will be dynamically added here -->
         </div>
