@@ -1,6 +1,7 @@
+
 <html><head><base href="https://nicoflix.com/" />
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>NICOFLIX</title>
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <style>
@@ -380,18 +381,63 @@
                 width: 140px;
                 height: 210px;
             }
+            .header {
+                flex-direction: column;
+                align-items: center;
+            }
+            .nav {
+                flex-wrap: wrap;
+                justify-content: center;
+                margin-top: 10px;
+            }
+            .search-container {
+                width: 100%;
+                margin-top: 10px;
+            }
+            .scroll-button {
+                padding: 10px;
+                font-size: 16px;
+                width: 30px;
+                height: 30px;
+            }
+            #playerContent {
+                flex-direction: column;
+            }
+            #playerCover {
+                width: 100%;
+                max-width: 300px;
+                margin: 0 auto;
+            }
+            #playerInfo {
+                width: 100%;
+            }
+            .modal-content {
+                width: 90%;
+                padding: 15px;
+            }
+            .footer {
+                padding: 5px 0;
+            }
         }
         @media (max-width: 480px) {
-            #sectionThumbnailContainer .thumbnail {
-                width: calc(100% - 20px);
-            }
-            .thumbnail-container {
-                height: 200px;
-            }
             .thumbnail {
                 flex: 0 0 120px;
                 width: 120px;
                 height: 180px;
+            }
+            .logo {
+                font-size: 1.5em;
+            }
+            .nav a {
+                font-size: 14px;
+            }
+            #episodesRow {
+                justify-content: center;
+            }
+            .episode-button {
+                width: 35px;
+                height: 35px;
+                font-size: 12px;
             }
         }
         #episodesRow {
